@@ -1,21 +1,11 @@
 import hashlib
+from time import time
+
 
 ALPHABIT = 'qwertyuiopasdfghjklzxcvbnm1234567890 -_=+~@!#$%^&*()'
 
 def decorator_password_generator(symbols=ALPHABIT, min_lenght=1):
-    """
-    This functions is decorator: 
-    @param: symbols
-    @param: min_lenght
-    @return: True password
-    Take function:
-    def extra_main(checking_password) -> bool:
-        pass
-    """
-
     def decorator(extra_main):
-        from time import time
-
 
         def RGF(M, current_password):
             if M == 0:
@@ -61,20 +51,57 @@ def decorator_password_generator(symbols=ALPHABIT, min_lenght=1):
     return decorator
 
 
-if __name__ == '__main__':
+class GeneratorPassword:
+    def __init__(self, true_password: str, symbols=ALPHABIT, min_lenght=1):
+        self.symbols = symbols
+        self.min_lenght = min_lenght
+        self.true_password = true_password
+        self.generated_password = ''
+        
+    def checkeng_password(self, checking_password: str) -> bool:
+        pass
+    
+    def get_password(self):
+        return self.generated_password if self.generated_password else f'Password not generated - {self.true_password}'
 
+    def run(self):
+        @decorator_password_generator(symbols=self.symbols, min_lenght=self.min_lenght)
+        def extra_main(checking_password:str):
+            return self.checkeng_password(checking_password)
+        
+        self.generated_password = extra_main()
+
+
+
+if __name__ == '__main__':
+    # Writing password to file
     # with open('true_password.txt', 'w') as file:
     #     file.write(hashlib.sha256(b'4944').hexdigest())
 
+    # Reading password from file
     with open('true_password.txt', 'r') as file:
         password = file.read()
 
+    # First method generating password(with decarator)
     @decorator_password_generator()
     def get_password(checking_password:str):
-        
+        # Method hashing - SHA256
         if password == hashlib.sha256(checking_password.encode()).hexdigest():
             return True
         else:
             return False
+    print('[INFO] Generating password with decorator')
+    print(f'Password - {get_password()}\n')
 
-    print(get_password())
+    # Second method generating password(with class)
+    class CustomGeneratorPassword(GeneratorPassword):
+        def checkeng_password(self, checking_password: str) -> bool:
+            # Method hashing - SHA256
+            return self.true_password == hashlib.sha256(checking_password.encode()).hexdigest()
+    
+    print('[INFO] Generating password with class')
+    generator = CustomGeneratorPassword(password)
+    generator.run()
+    print(f'Password - {generator.get_password()}')
+
+
