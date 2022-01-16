@@ -1,4 +1,3 @@
-from aifc import Error
 import hashlib
 from time import time
 
