@@ -1,3 +1,4 @@
+from aifc import Error
 import hashlib
 from time import time
 
@@ -51,6 +52,11 @@ def decorator_password_generator(symbols=ALPHABIT, min_lenght=1):
     return decorator
 
 
+class NotRunGeneratorError(Exception):
+    def __str__(self) -> str:
+        return 'For get password, you need run generator'
+
+
 class GeneratorPassword:
     def __init__(self, true_password: str, symbols=ALPHABIT, min_lenght=1):
         self.symbols = symbols
@@ -62,7 +68,10 @@ class GeneratorPassword:
         pass
     
     def get_password(self):
-        return self.generated_password if self.generated_password else f'Password not generated - {self.true_password}'
+        if self.generated_password:
+            return self.generated_password 
+        else:
+            raise NotRunGeneratorError
 
     def run(self):
         @decorator_password_generator(symbols=self.symbols, min_lenght=self.min_lenght)
